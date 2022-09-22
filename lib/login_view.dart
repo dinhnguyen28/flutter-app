@@ -27,7 +27,13 @@ class LoginViewStatefullWidget extends StatefulWidget {
 class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
   bool isChecked = false;
   bool _isObscure = true;
+  bool _autoValidate = false;
   final _formKey = GlobalKey<FormState>();
+  String _regexKey =
+      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+
+  TextEditingController emailTextEditingController = TextEditingController();
+  TextEditingController passwordTextEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,16 +65,19 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide.none),
                       hintText: 'Email của bạn'),
-                  //controller: ,
+                  //controller:
+                  controller: emailTextEditingController,
+
+                  //autovalidateMode: AutovalidateMode.onUserInteraction,
+
                   validator: (email) {
                     if (email == null || email.isEmpty) {
                       return 'Vui lòng nhập Email';
                     }
-                    if (!email.contains('@')) {
-                      return 'Định dạng Email không hợp lệ';
-                    }
-                    if (!email.contains('.')) {
-                      return 'Định dạng Email không hợp lệ';
+                    // if (!RegExp(r'\S+@\S+\.\S+').hasMatch(email)) {
+
+                    if (!RegExp(_regexKey).hasMatch(email)) {
+                      return 'Email không hợp lệ';
                     }
                     return null;
                   },
@@ -100,12 +109,14 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                     ),
                   ),
                   //controller:
-                  validator: (password) {
-                    if (password == null || password.isEmpty) {
+                  controller: passwordTextEditingController,
+                  validator: (txtPassword) {
+                    if (txtPassword == null || txtPassword.isEmpty) {
                       return 'Vui lòng nhập Password';
                     }
                     return null;
                   },
+                  onSaved: (password) {},
                 ),
               ),
 
@@ -159,10 +170,12 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                   minimumSize: const Size.fromHeight(50),
                 ),
                 //controller
+
                 onPressed: () {
                   //todo
                   if (_formKey.currentState!.validate()) {
                     //do some thing
+
                   }
                 },
                 child: const Text(
