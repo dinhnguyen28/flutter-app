@@ -49,11 +49,6 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                   fontSize: 32,
                 ),
               ),
-              // Form(
-              // onChanged: () {
-              //   Form.of(primaryFocus!.context!)!.save();
-              // },
-              // child:
               Container(
                 margin: const EdgeInsets.only(top: 20),
                 child: TextFormField(
@@ -69,11 +64,14 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                     if (email == null || email.isEmpty) {
                       return 'Vui lòng nhập Email';
                     }
+                    if (!email.contains('@')) {
+                      return 'Định dạng Email không hợp lệ';
+                    }
+                    if (!email.contains('.')) {
+                      return 'Định dạng Email không hợp lệ';
+                    }
                     return null;
                   },
-                  // onChanged: (email) {
-                  //   debugPrint(email);
-                  // }
                 ),
               ),
               // ),
@@ -110,9 +108,7 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                   },
                 ),
               ),
-              // Container(
-              // color: Colors.redAccent,
-              // child:
+
               Row(
                 children: [
                   Transform.scale(
