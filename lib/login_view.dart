@@ -1,4 +1,10 @@
+// ignore_for_file: camel_case_types
+
+import 'package:ex_flutter_app_figma/api/api_service.dart';
+import 'package:ex_flutter_app_figma/model/login_model.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:ex_flutter_app_figma/register_view.dart';
 
 class LoginView extends StatelessWidget {
   const LoginView({Key? key}) : super(key: key);
@@ -27,13 +33,30 @@ class LoginViewStatefullWidget extends StatefulWidget {
 class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
   bool isChecked = false;
   bool _isObscure = true;
-  bool _autoValidate = false;
+
   final _formKey = GlobalKey<FormState>();
-  String _regexKey =
+  final String _regexKeyEmail =
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+  final String _regexKeyPassword =
+      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$';
+
+  late LoginRequestModel requestModel;
+
+  late LoginResponseModel repsonseData;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   TextEditingController emailTextEditingController = TextEditingController();
   TextEditingController passwordTextEditingController = TextEditingController();
+  @override
+  void dispose() {
+    super.dispose();
+    emailTextEditingController.dispose();
+    passwordTextEditingController.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +65,7 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
       child: Padding(
         padding: const EdgeInsets.all(30.0),
         child: SingleChildScrollView(
-          //physics: const NeverScrollableScrollPhysics(),
+          //physics: const NeverScrollableScxrollPhysics(),
           child: Column(
             //mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -68,28 +91,25 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                   //controller:
                   controller: emailTextEditingController,
 
-                  //autovalidateMode: AutovalidateMode.onUserInteraction,
-
-                  validator: (email) {
-                    if (email == null || email.isEmpty) {
+                  validator: (emailInput) {
+                    if (emailInput == null || emailInput.isEmpty) {
                       return 'Vui lòng nhập Email';
                     }
-                    // if (!RegExp(r'\S+@\S+\.\S+').hasMatch(email)) {
 
-                    if (!RegExp(_regexKey).hasMatch(email)) {
+                    if (!RegExp(_regexKeyEmail).hasMatch(emailInput)) {
                       return 'Email không hợp lệ';
                     }
+
                     return null;
                   },
+                  onSaved: (emailInput) => requestModel.email = emailInput!,
                 ),
               ),
               // ),
               Container(
-                //color: Colors.redAccent,
                 margin: const EdgeInsets.only(top: 20, bottom: 36),
                 child: TextFormField(
                   obscureText: _isObscure,
-
                   decoration: InputDecoration(
                     filled: true,
                     fillColor: Colors.white,
@@ -108,74 +128,69 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                       },
                     ),
                   ),
-                  //controller:
                   controller: passwordTextEditingController,
-                  validator: (txtPassword) {
-                    if (txtPassword == null || txtPassword.isEmpty) {
+                  onSaved: (passwordInput) =>
+                      requestModel.password = passwordInput!,
+                  validator: (passwordInput) {
+                    if (passwordInput == null || passwordInput.isEmpty) {
                       return 'Vui lòng nhập Password';
+                    } else if (passwordInput.contains(' ')) {
+                      return 'Password không được chứa khoảng trắng';
+                    } else if (!RegExp(_regexKeyPassword)
+                        .hasMatch(passwordInput.trim())) {
+                      return '6 ký tự và ít nhất 1 số, chữ hoa, thường và kí tự đặc biệt';
                     }
                     return null;
                   },
-                  onSaved: (password) {},
                 ),
               ),
 
               Row(
                 children: [
-                  Transform.scale(
-                    scale: 1.2,
-                    child: Checkbox(
-                        activeColor: const Color(0xFF209F84),
-                        shape: const CircleBorder(),
-                        value: isChecked,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            isChecked = value!;
-                          });
-                        }),
-                  ),
-                  const Text(
-                    'Ghi nhớ đăng nhập',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Color(0xFF424242),
-                    ),
-                  ),
-                  const Spacer(
-                    flex: 2,
-                  ),
-                  InkWell(
-                    onTap: () {
-                      debugPrint('Quên password');
-                    },
-                    child: const Text(
-                      'Quên password?',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        //fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: Color(0xFFEDAF14),
+                  Expanded(
+                      child: CheckboxListTile(
+                          title: const Text('Ghi nhớ đăng nhập'),
+                          value: isChecked,
+                          onChanged: (_) {})),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        debugPrint('Quên password');
+                      },
+                      child: const Text(
+                        'Quên password?',
+                        style: TextStyle(
+                          fontFamily: 'Poppins',
+                          //fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: Color(0xFFEDAF14),
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-              ////
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   primary: const Color(0xFF209F84),
                   minimumSize: const Size.fromHeight(50),
                 ),
-                //controller
-
-                onPressed: () {
+                onPressed: () async {
                   //todo
                   if (_formKey.currentState!.validate()) {
-                    //do some thing
+                    String iPassword = passwordTextEditingController.text;
+                    String iEmail = emailTextEditingController.text;
 
+                    repsonseData = await loginRequest(LoginRequestModel(
+                        email: iEmail, password: iPassword, realm: ''));
+                    debugPrint(repsonseData.data.accessToken);
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RegisterView()),
+                    );
                   }
                 },
                 child: const Text(
@@ -193,62 +208,76 @@ class _loginViewStatefullWidget extends State<LoginViewStatefullWidget> {
                   style: TextStyle(fontFamily: 'Poppins', fontSize: 16),
                 ),
               ),
+
               Row(
                 children: <Widget>[
-                  GestureDetector(
-                    onTap: () {
-                      //todo
-                      debugPrint('Google');
-                    },
-                    child: Image.asset(
-                      'assets/images/btnGoogle.png',
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        //todo
+                        debugPrint('Google');
+                      },
+                      child: Image.asset(
+                        'assets/images/btnGoogle.png',
+                      ),
                     ),
                   ),
-                  const Spacer(
-                    flex: 2,
+                  const SizedBox(
+                    width: 10,
                   ),
-                  GestureDetector(
-                    onTap: () {
-                      //todo
-                      debugPrint('Facebook');
-                    },
-                    child: Image.asset(
-                      'assets/images/btnFacebook.png',
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        //todo
+                        debugPrint('Facebook');
+                      },
+                      child: Image.asset(
+                        'assets/images/btnFacebook.png',
+                      ),
                     ),
                   ),
                 ],
               ),
+              //
+
               Container(
                 margin: const EdgeInsets.only(top: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      'Chưa có tài khoản?',
+                child: RichText(
+                  text: const TextSpan(children: [
+                    TextSpan(
+                      text: 'Chưa có tài khoản?',
                       style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontSize: 16,
-                          color: Color(0xFFB0B2BE)),
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFB0B2BE),
+                      ),
                     ),
-                    InkWell(
-                      onTap: () {
-                        //todo
-                        debugPrint('Tạo tài khoản');
-                      },
-                      child: const Text('Tạo tài khoản',
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 16,
-                              color: Color(0xFF209F84),
-                              fontWeight: FontWeight.bold)),
-                    )
-                  ],
+                    TextSpan(
+                      text: 'Tạo tài khoản',
+                      style: TextStyle(
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF209F84),
+                      ),
+                      // recognizer: TapGestureRecognizer()
+                      //   ..onTap = () =>
+                      //       // do something here
+                      //       Navigator.of(context).pushAndRemoveUntil(
+                      //           MaterialPageRoute(
+                      //             builder: (BuildContext context) =>
+                      //                 const RegisterView(),
+                      //           ),
+                      //           (Route route) => false),
+                    ),
+                  ]),
                 ),
               ),
               InkWell(
                 onTap: () {
                   //todo
-                  debugPrint('Tạo tài khoản');
+                  debugPrint('Dùng không cần tạo tài khoản');
                 },
                 child: const Text(
                   'Dùng không cần tạo tài khoản',
